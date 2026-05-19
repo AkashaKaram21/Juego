@@ -45,35 +45,50 @@ public class FlyEnemyAI : MonoBehaviour
         brain.SetOnStay(EFly.Attack, AttackUpdate);
     }
 
-    void MoveUpdate()
+   void MoveUpdate()
+{
+    _rigidbody.linearVelocity = direction * speed;
+
+    // Girar sprite según dirección de patrulla
+    SpriteRenderer sr = GetComponent<SpriteRenderer>();
+    if (direction.x > 0)
+        sr.flipX = false;
+    else
+        sr.flipX = true;
+
+    if (DetectCollision())
     {
-        _rigidbody.linearVelocity = direction * speed;
-        if (DetectCollision())
-        {
-            ChangeDirection();
-        }
-        if (IsPlayerCloseByDistance(attackDistance))
-        {
-            brain.ChangeState(EFly.Attack);
-        }
+        ChangeDirection();
     }
+    if (IsPlayerCloseByDistance(attackDistance))
+    {
+        brain.ChangeState(EFly.Attack);
+    }
+}
 
     void AttackUpdate()
+{
+    Vector2 dirAttack = Player.position - transform.position;
+    dirAttack = dirAttack.normalized;
+    _rigidbody.linearVelocity = dirAttack * speed;
+
+    // Girar el sprite según la dirección
+    if (dirAttack.x > 0)
+        GetComponent<SpriteRenderer>().flipX = false;
+    else
+        GetComponent<SpriteRenderer>().flipX = true;
+
+    timerToShoot += Time.deltaTime;
+    if (timerToShoot >= 1.5f)
     {
-        Vector2 dirAttack = Player.position - transform.position;
-        dirAttack = dirAttack.normalized;
-        _rigidbody.linearVelocity = dirAttack * speed;
-        timerToShoot += Time.deltaTime;
-        if (timerToShoot >= 1.5f)
-        {
-            Fire?.Invoke();
-            timerToShoot = 0.0f;
-        }
-        if (!IsPlayerCloseByDistance(attackDistance))
-        {
-            brain.ChangeState(EFly.Move);
-        }
+        Fire?.Invoke();
+        timerToShoot = 0.0f;
     }
+    if (!IsPlayerCloseByDistance(attackDistance))
+    {
+        brain.ChangeState(EFly.Move);
+    }
+}
 
     bool DetectCollision()
     {

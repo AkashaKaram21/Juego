@@ -9,7 +9,7 @@ public class Bullet : MonoBehaviour
     public void SetDirection(Vector2 direction)
     {
         _direction = direction.normalized;
-        Destroy(gameObject, lifetime); // si no toca a nadie, muere sola
+        Destroy(gameObject, lifetime);
     }
 
     void Update()
